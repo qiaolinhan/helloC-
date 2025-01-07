@@ -44,3 +44,6 @@ LDFLAGS += -L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
 CPPFLAGS += -I/usr/local/opt/llvm/include -I/usr/local/opt/llvm/include/c++/v1/
 endif
 ```
+
+If you’re getting errors about missing headers like `assert.h`, make sure to run
+`xcode-select --install`. This will populate `/usr/include` correctly.
