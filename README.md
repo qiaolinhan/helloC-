@@ -28,3 +28,19 @@ export CXX := $(CC)++
 Note that if your tools look for `ld` or `ar`, you will likely end up using the Apple
 tools. Make sure you change your compiler settings to `llvm-ar` and `llvm-ld` if you want
 to utilize the mainline tools.
+
+You will need the following flags for compiling and linking:
+```
+LDFLAGS += -L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
+CPPFLAGS += -I/usr/local/opt/llvm/include -I/usr/local/opt/llvm/include/c++/v1/
+```
+
+You can also check whether brew clang is actually installed before adding these
+flags. This will help you support users who install clang by other means.
+```
+ifeq ($(shell brew info llvm 2>&1 | grep -c "Built from source on"), 1)
+#we are using a homebrew clang, need new flags
+LDFLAGS += -L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
+CPPFLAGS += -I/usr/local/opt/llvm/include -I/usr/local/opt/llvm/include/c++/v1/
+endif
+```
