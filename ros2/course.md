@@ -22,7 +22,12 @@ ROS1 relies on the TCP or UDP, but ROS2 is based on DDS;
 ROS2 has middleware so that different DDS could be applied.  
 
 ### To install ROS2 on Ubuntu
-1. Setting the compiling
+1. **System setup**  
+**Set locale**  
+Make sure you have a locale which support `UTF-8`. If you are in a minimal
+environment (such as a docker container), the locale may be something like `POSIX`.
+We test with the following settings. However, it should be fine if you are using a
+different UTF-8 supported locale.
 ```
 sudo apt uodate
 sudo apt upgrade
@@ -31,32 +36,70 @@ sudo locale-gen en_US en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
 ```
-2. Adding the source and install ROS2 (Fixing the bug with
-   https://www.bilibili.com/video/BV16B4y1Q7jQ?spm_id_from=333.788.player.switch&vd_source=af71365a49fe7305e3db14d327de14c9&p=3
-   at time 14:51)  
+**Enable required repositories**  
+You will need to add the ROS2 apt repositoryto your system.  
+First, ensure that the Ubuntu Universe repository is enabled.
 ```
-sudo apt update && sudo apt install curl gnupg lsb-release
+sudo apt install software-properties-common
+sudo add-apt-repository universe
+```
+Now add the ROS2 GPG key with apt.
+```
+sudo apt update && sudo apt install curl -y
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -output /usr/share/keyrings/ros-archive-keyring.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages/ros/org/ros2/ubuntu $(source/etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+```
+**Install development tools** 
+```
+sudo apt update && sudo apt install -y \
+  python3-flake8-blind-except \
+  python3-flake8-class-newline \
+  python3-flake8-deprecated \
+  python3-mypy \
+  python3-pip \
+  python3-pytest \
+  python3-pytest-cov \
+  python3-pytest-mock \
+  python3-pytest-repeat \
+  python3-pytest-rerunfailures \
+  python3-pytest-runner \
+  python3-pytest-timeout \
+  ros-dev-tools
+```
+2. **Build ROS2**  
+**Get ROS2 code**  
+Create a workspace and clone all repos
+```
+mkdir -p ~/ros2_jazzy/src
+cd ~/ros2_jazzy
+vcs import --input https://raw.githubusercontent.com/ros2/ros2/jazzy/ros2.repos src
+```
+**Install dependencies using `rosdep`**  
+ROS2 packages are built on frequent updated Ubuntu systems. It is always recommended
+that you ensure your system is up to date before installing new packages.
+```
 sudo apt update
-sudo apt upgrade
-sudo apt install ros-humble-desktop
+sudo apt upgrade -y
+
+sudo rosdep init
+rosdep update
+rosdep install --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers"
 ```
-3. Adding the environment variances
+**Build the code in the workspace**
 ```
-source /opt/ros/humble/setup.bash
-echo "source/opt/ros/humble/setup.bash">>~/.bashrc
+cd ~/ros2_jazzy/
+colcon build --symlink-install
 ```
-4. Install the ROS2 package
+3. **Setup the environment**  
+By sourcing the following file
 ```
-sudo apt update
-sudo apt install ros-humble-ros1-bridge
-sudo apt install ros-numble-****
+# Replace ".bash" with your shell if you're not using bash
+# Possible values are: setup.bash, setup.sh, setup.zsh
+. ~/ros2_jazzy/install/local_setup.bash
 ```
-5. Check if the installation is succeed
+
+4. **Check if the installation is succeed**
 ```
 ros2 run demo_node_cpp talker
 ```
