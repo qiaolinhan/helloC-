@@ -24,7 +24,7 @@ ROS2 has middleware so that different DDS could be applied.
 ### To install ROS2 on Ubuntu
 1. Setting the compiling
 ```
-sudo aot uodate
+sudo apt uodate
 sudo apt upgrade
 sudo apt install locales
 sudo locale-gen en_US en_US.UTF-8
@@ -36,12 +36,11 @@ export LANG=en_US.UTF-8
    at time 14:51)  
 ```
 sudo apt update && sudo apt install curl gnupg lsb-release
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o
-/usr/share/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture)
-signed-bu=/sur/share/keyrings/ros-archive-keyring.gpg]
-http://packages/ros/org/ros2/ubuntu $(source/etc/os-release&&echo $UBUNTU_CODENAME)
-main" | sudo tee /etc/apt/sources.list.d/ros2.list>/dev/null
+
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -output /usr/share/keyrings/ros-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages/ros/org/ros2/ubuntu $(source/etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
 sudo apt update
 sudo apt upgrade
 sudo apt install ros-humble-desktop
